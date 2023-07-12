@@ -29,6 +29,9 @@ from quiz.views import (
     AnswerViewSet,
     VoteViewSet,
 )
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 router = routers.DefaultRouter()
 router.register("quizzes", QuizViewSet)
@@ -48,3 +51,4 @@ urlpatterns = [
     path("api/quiz-scores/", QuizScoresView.as_view(), name="quiz-scores"),
     path("api/usage/", QaasUsageView.as_view(), name="qaas-usage"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -100,3 +100,9 @@ class QuizCheckProgressSerializer(serializers.Serializer):
 
 class QuizUsageSerializer(serializers.Serializer):
     date = serializers.DateField()
+
+    FORMAT_CHOICES = (
+        ("json", "JSON"),
+        ("csv", "CSV"),
+    )
+    format = serializers.ChoiceField(choices=FORMAT_CHOICES, default="json")

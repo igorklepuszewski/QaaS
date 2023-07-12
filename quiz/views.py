@@ -1,6 +1,11 @@
+import csv
 from datetime import datetime
+import io
+import json
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
+from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
 
 # Create your views here.
 from rest_framework import viewsets, status, permissions
@@ -260,6 +265,7 @@ class QaasUsageView(CustomView):
 
         serializer = QuizUsageSerializer(data=request.data)
         if serializer.is_valid():
+            format = serializer["format"]
             date = datetime.strptime(str(serializer["date"].value), "%Y-%m-%d").date()
             quizzes_created = Quiz.objects.filter(date_created__date=date)
             questions_created = Question.objects.filter(quiz__date_created__date=date)
@@ -267,13 +273,30 @@ class QaasUsageView(CustomView):
                 answers__votes__date_created__date=date
             )
             user_added = User.objects.filter(date_joined__date=date)
-            return Response(
-                {
-                    "date": str(serializer["date"].value),
-                    "quzzes_created": len(quizzes_created),
-                    "question_created": len(questions_created),
-                    "questions_answered": len(questions_answered),
-                    "user_added": len(user_added),
-                }
-            )
+            dict_data = {
+                "date": str(serializer["date"].value),
+                "quzzes_created": len(quizzes_created),
+                "question_created": len(questions_created),
+                "questions_answered": len(questions_answered),
+                "user_added": len(user_added),
+            }
+
+            if format == "json":
+                parsed_data = json.dumps(dict_data)
+                name = f"{str(serializer['date'].value)}.json"
+            else:
+                parsed_data = None
+                name = f"{str(serializer['date'].value)}.csv"
+                with io.StringIO() as output:
+                    writer = csv.DictWriter(
+                        output, fieldnames=dict_data.keys(), delimiter=";"
+                    )
+                    writer.writeheader()
+                    writer.writerow(dict_data)
+                    parsed_data = output.getvalue()
+            storage = FileSystemStorage()
+            content = ContentFile(parsed_data, name)
+            filename = storage.save(name, content)
+            file_url = storage.url(filename)
+            return Response({"file_url": file_url})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
