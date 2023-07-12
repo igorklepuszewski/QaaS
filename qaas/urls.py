@@ -25,19 +25,18 @@ from quiz.views import (
     QuizScoresView,
     QuizSubmissionView,
     QuizViewSet,
-    QuestionViewSet,
-    AnswerViewSet,
     VoteViewSet,
 )
 from django.conf.urls.static import static
 from django.conf import settings
 
+from user.views import UserViewSet
+
 
 router = routers.DefaultRouter()
 router.register("quizzes", QuizViewSet)
-router.register("questions", QuestionViewSet)
-router.register("answers", AnswerViewSet)
 router.register("votes", VoteViewSet)
+router.register("users", UserViewSet)
 
 
 urlpatterns = [

@@ -107,27 +107,48 @@ class QuizViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    # def update(self, instance, validated_data):
-    #     # Update the Foo instance
-    #     instance.title = validated_data["title"]
-    #     instance.save()
-    #     return instance
-
-
-class AnswerViewSet(viewsets.ModelViewSet):
-    queryset = Answer.objects.all()
-    serializer_class = AnswerSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    lookup_field = "pk"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Apply additional filtering based on your requirements
+        # Example: Filter by a field based on a query parameter
+        paricipant = self.request.query_params.get("participant")
+        if paricipant:
+            queryset = queryset.filter(paricipant__email=paricipant)
+
+        answer = self.request.query_params.get("answer")
+        if answer:
+            queryset = queryset.filter(answer__id=answer)
+
+        question = self.request.query_params.get("question")
+        if question:
+            queryset = queryset.filter(answer__question__id=question)
+
+        quiz = self.request.query_params.get("quiz")
+        if quiz:
+            queryset = queryset.filter(answer__question__quiz__id=quiz)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not request.user.check_role(Role.ADMIN):
+            if request.user.check_role(Role.CREATOR):
+                queryset = queryset.filter(answer__question__quiz__creator=request.user)
+            if request.user.check_role(Role.PARTICIPANT):
+                queryset = queryset.filter(
+                    answer__question__quiz__participants=request.user
+                )
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class CustomView(APIView):
@@ -256,6 +277,17 @@ class QuizScoresView(CustomView):
 
 
 class QaasUsageView(CustomView):
+    """
+    This can be scheduled to the celery tasks with crontab(hour=23, minute=59),
+    that will generate the report.
+
+    Executing the View will first check if the file exists.
+    Admin can for instance request a file from previous day,
+    if there is no file then the file will be created.
+    At the end of the day celery worker should
+    override this file with a total usage from that day
+    """
+
     def get(self, request):
         if not request.user.check_role(Role.ADMIN):
             return Response(
