@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "invitations",
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
@@ -70,6 +72,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "qaas.urls"
+SITE_ID = 1
+
 
 TEMPLATES = [
     {
@@ -147,3 +151,13 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
 }
+
+# EMAIL
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "qaasmail049@gmail.com"  # Your Gmail email address
+EMAIL_HOST_PASSWORD = "gisgwjujnmaygniw"  # Your Gmail password or an app password if you have 2-step verification enabled
+EMAIL_USE_TLS = True
+INVITATIONS_INVITATION_MODEL = "quiz.Invitation"
+EMAIL_MAX_LENGTH = 254

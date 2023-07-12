@@ -20,6 +20,10 @@ from django.urls.conf import include
 
 from rest_framework import routers
 from quiz.views import (
+    QaasUsageView,
+    QuizProgressView,
+    QuizScoresView,
+    QuizSubmissionView,
     QuizViewSet,
     QuestionViewSet,
     AnswerViewSet,
@@ -37,4 +41,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include(router.urls)),
+    path("invitations/", include("invitations.urls", namespace="invitations")),
+    path("user/", include("user.urls")),
+    path("api/quiz-submission/", QuizSubmissionView.as_view(), name="quiz-submission"),
+    path("api/quiz-progress/", QuizProgressView.as_view(), name="quiz-progress"),
+    path("api/quiz-scores/", QuizScoresView.as_view(), name="quiz-scores"),
+    path("api/usage/", QaasUsageView.as_view(), name="qaas-usage"),
 ]

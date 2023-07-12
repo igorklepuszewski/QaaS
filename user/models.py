@@ -35,9 +35,8 @@ class UserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email), username=username)
         if password is not None:
             user.set_password(password)
-        role = Role.objects.get(id=Role.PARTICIPANT)
         user.save(using=self._db)
-        user.roles.add(role)
+        user.roles.add(Role.PARTICIPANT)
         user.save(using=self._db)
         return user
 
@@ -50,7 +49,9 @@ class UserManager(BaseUserManager):
         user.is_admin = True
         user.is_staff = True
         user.is_superuser = True
+        user.roles.add(Role.ADMIN, Role.CREATOR, Role.PARTICIPANT)
         user.save(using=self._db)
+
         return user
 
 
