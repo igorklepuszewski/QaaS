@@ -34,8 +34,8 @@ DATABASES = {
         "NAME": "postgres",
         "USER": os.environ["POSTGRES_USER"],
         "PASSWORD": os.environ["POSTGRES_USER"],
-        "HOST": "db",
-        "PORT": "5432",
+        "HOST": "127.0.0.1",
+        "PORT": "8001",
     }
 }
 
@@ -165,8 +165,8 @@ REST_FRAMEWORK = {
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "qaasmail049@gmail.com"  # Your Gmail email address
-EMAIL_HOST_PASSWORD = "gisgwjujnmaygniw"  # Your Gmail password or an app password if you have 2-step verification enabled
+EMAIL_HOST_USER = os.environ["SMTP_EMAIL"]
+EMAIL_HOST_PASSWORD = os.environ["SMTP_PASSWORD"]
 EMAIL_USE_TLS = True
 INVITATIONS_INVITATION_MODEL = "quiz.Invitation"
 EMAIL_MAX_LENGTH = 254
