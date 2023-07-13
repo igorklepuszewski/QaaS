@@ -1,30 +1,31 @@
 import csv
-from datetime import datetime
 import io
 import json
-from django.http import Http404
-from django.shortcuts import get_object_or_404, render
-from django.core.files.storage import FileSystemStorage
+from datetime import datetime
+
+import django_filters.rest_framework
 from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from invitations.utils import get_invitation_model
 
 # Create your views here.
-from rest_framework import viewsets, status, permissions
+from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
-from rest_framework import status
-from quiz.models import Quiz, Question, Answer, Vote
+from rest_framework.views import APIView
+
+from quiz.models import Answer, Question, Quiz, Vote
 from quiz.serializers import (
     QuizCheckProgressSerializer,
     QuizSerializer,
-    QuestionSerializer,
-    AnswerSerializer,
     QuizSubmissionSerializer,
     QuizUsageSerializer,
     VoteSerializer,
 )
 from user.models import Role, User
-from invitations.utils import get_invitation_model
-from rest_framework.views import APIView
-import django_filters.rest_framework
 
 
 class QuizViewSet(viewsets.ModelViewSet):
@@ -332,3 +333,43 @@ class QaasUsageView(CustomView):
             file_url = storage.url(filename)
             return Response({"file_url": file_url})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendQuizResultsView(CustomView):
+    def post(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        if not quiz.creator == request.user:
+            return Response(
+                {"detail": "User is not a creator of that quiz."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Iterate over each participant and send email
+        for participant in quiz.participants.all():
+            participant_email = participant.email
+
+            count = 0
+            questions = quiz.questions.all()
+            for question in questions:
+                participant_answered = question.answers.filter(
+                    votes__participant=participant
+                )
+                is_correct = not (
+                    question.answers.filter(votes__participant=participant)
+                    .exclude(is_correct=True)
+                    .exists()
+                )
+                is_correct = is_correct if participant_answered.exists() else None
+                if is_correct:
+                    count += 1
+
+            # Construct the email content
+            subject = f"Quiz {quiz.name} Results"
+            message = f"Dear {participant.username},\n\nHere are your quiz results:\n\n{count}/{len(questions)}\n\nThank you for participating in the quiz!\n\nRegards,\nThe QaaS Team"
+            from_email = "quiz@example.com"
+            recipient_list = [participant_email]
+
+            # Send the email
+            send_mail(subject, message, from_email, recipient_list)
+
+        return Response({"msg": "Quiz results sent to participants."})

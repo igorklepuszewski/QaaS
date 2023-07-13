@@ -25,13 +25,10 @@ from quiz.views import (
     QuizScoresView,
     QuizSubmissionView,
     QuizViewSet,
+    SendQuizResultsView,
     VoteViewSet,
 )
-from django.conf.urls.static import static
-from django.conf import settings
-
 from user.views import UserViewSet
-
 
 router = routers.DefaultRouter()
 router.register("quizzes", QuizViewSet)
@@ -49,5 +46,10 @@ urlpatterns = [
     path("api/quiz-progress/", QuizProgressView.as_view(), name="quiz-progress"),
     path("api/quiz-scores/", QuizScoresView.as_view(), name="quiz-scores"),
     path("api/usage/", QaasUsageView.as_view(), name="qaas-usage"),
+    path(
+        "api/send-quiz-result/<int:quiz_id>/",
+        SendQuizResultsView.as_view(),
+        name="send-quiz-results",
+    ),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
