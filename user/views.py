@@ -1,17 +1,18 @@
+from email.headerregistry import Address
+
+import django_filters.rest_framework
+from django.contrib.auth import get_user_model
 from django.http import Http404
+from django.shortcuts import get_object_or_404
+from invitations.utils import get_invitation_model
+from rest_framework import permissions, status, viewsets
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
-from email.headerregistry import Address
-from user.models import Role, User
-from rest_framework.authtoken.models import Token
-from invitations.utils import get_invitation_model
 from rest_framework.views import APIView
 
+from user.models import Role, User
 from user.serializers import UserSerializer, UserTokenSerializer
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status, permissions
-import django_filters.rest_framework
 
 # Create your views here.
 

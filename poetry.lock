@@ -113,6 +113,20 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "isort"
+version = "5.12.0"
+description = "A Python utility / library to sort Python imports."
+category = "main"
+optional = false
+python-versions = ">=3.8.0"
+
+[package.extras]
+colors = ["colorama (>=0.4.3)"]
+pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
+plugins = ["setuptools"]
+requirements-deprecated-finder = ["pip-api", "pipreqs"]
+
+[[package]]
 name = "model-bakery"
 version = "1.12.0"
 description = "Smart object creation facility for Django."
@@ -248,7 +262,7 @@ python-versions = ">=2"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "afd2a3db7833bc0da6a8e36ad24a63e114147e7739bf11f84e262f3b7b4fb607"
+content-hash = "bbcff0599491683b66d2fab47576966adfd3bb1bf97c345d5d0d06b11a799d7b"
 
 [metadata.files]
 asgiref = [
@@ -290,6 +304,10 @@ freezegun = [
 iniconfig = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+isort = [
+    {file = "isort-5.12.0-py3-none-any.whl", hash = "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"},
+    {file = "isort-5.12.0.tar.gz", hash = "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504"},
 ]
 model-bakery = [
     {file = "model_bakery-1.12.0-py3-none-any.whl", hash = "sha256:70e991dd503e3f1956632c621946bb8e71012172db740bab75cd9d2a447283a3"},

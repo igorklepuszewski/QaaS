@@ -73,6 +73,7 @@ class QuizViewSet(viewsets.ModelViewSet):
             )
             invite.send_invitation(request)
 
+        # to be bulksend https://django-invitations.readthedocs.io/en/latest/usage.html
         for invitee in serializer.data["invitees"]:
             send_invite(invitee["email"])
 
@@ -83,10 +84,9 @@ class QuizViewSet(viewsets.ModelViewSet):
         # Filter the queryset based on the creator
         queryset = self.get_queryset()
         if not request.user.check_role(Role.ADMIN):
-            if request.user.check_role(Role.CREATOR):
-                queryset = queryset.filter(creator=request.user)
-            if request.user.check_role(Role.PARTICIPANT):
-                queryset = queryset.filter(participants=request.user)
+            queryset = queryset.filter(
+                Q(creator=request.user) | Q(participants=request.user)
+            )
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -95,10 +95,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         if not request.user.check_role(Role.ADMIN):
-            if (
-                instance.creator != request.user
-                and request.user not in instance.participants.all()
-            ):
+            if not Q(creator=request.user) & Q(participants=request.user):
                 return Response(
                     {"message": "You are not allowed to access this quiz"},
                     status=status.HTTP_403_FORBIDDEN,

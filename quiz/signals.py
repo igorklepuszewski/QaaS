@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from invitations.signals import invite_accepted
-from django.contrib.auth import get_user_model
 from invitations.utils import get_invitation_model
 
 User = get_user_model()
