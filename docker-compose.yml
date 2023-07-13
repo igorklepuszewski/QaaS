@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: postgres:10
+    image: postgres:12
     env_file:
       - .env
     volumes:
@@ -13,7 +13,7 @@ services:
     build: .
     env_file:
       - .env
-    command: bash -c "poetry run python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "poetry run python manage.py migrate && poetry run python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8000:8000
     depends_on:
